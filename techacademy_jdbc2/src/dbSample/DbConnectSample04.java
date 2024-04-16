@@ -5,20 +5,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class DbConnectSample04 {
 
     public static void main(String[] args) {
-        //　データベース接続と結果取得のための変数
+        // データベース接続と結果取得のための変数
         Connection con = null;
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
-        
+
         try {
-            // 1. ドライバーのクラスをJava上で読み込む
+            // 1. ドライバのクラスをJava上で読み込む
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // 2. DBと接続する
@@ -28,35 +28,40 @@ public class DbConnectSample04 {
                 "wpjj7691W_M"
             );
 
+            String sql = "SELECT * FROM country WHERE Name = ?";
+
             // 3. DBとやりとりする窓口（Statementオブジェクト）の作成
-            stmt = con.createStatement();
+            pstmt = con.prepareStatement(sql);
 
             // 4, 5. Select文の実行と結果を格納／代入
             System.out.print("検索キーワードを入力してください > ");
             String input = keyIn();
-            
-            String sql = "SELECT * FROM country where Name = '" + input + "'";
-            rs = stmt.executeQuery(sql);
+
+            pstmt.setString(1, input);
+
+            rs = pstmt.executeQuery();
 
             // 6. 結果を表示する
-            while( rs.next() ) {
+            while( rs.next() ){
                 // Name列の値を取得
                 String name = rs.getString("Name");
+
                 // Population列の値を取得
                 int population = rs.getInt("Population");
+
                 // 取得した値を表示
                 System.out.println(name);
                 System.out.println(population);
-            }            
+            }
         } catch (ClassNotFoundException e) {
-            System.err.println("JDBCドライバーのロードに失敗しました。");
+            System.err.println("JDBCドライバのロードに失敗しました。");
             e.printStackTrace();
         } catch (SQLException e) {
             System.err.println("データベースに異常が発生しました。");
             e.printStackTrace();
         } finally {
             // 7. 接続を閉じる
-            if( rs != null ) {
+            if( rs != null ){
                 try {
                     rs.close();
                 } catch (SQLException e) {
@@ -64,16 +69,15 @@ public class DbConnectSample04 {
                     e.printStackTrace();
                 }
             }
-            if( stmt != null ) {
+            if( pstmt != null ){
                 try {
-                    stmt.close();
+                    pstmt.close();
                 } catch (SQLException e) {
                     System.err.println("Statementを閉じるときにエラーが発生しました。");
                     e.printStackTrace();
                 }
             }
-        }
-            if( con != null ) {
+            if( con != null ){
                 try {
                     con.close();
                 } catch (SQLException e) {
@@ -82,15 +86,24 @@ public class DbConnectSample04 {
                 }
             }
         }
-/*
- * キーボードから入力された値をStringで返す 引数:なし 戻り値:入力された文字列
- */
+
+    }
+
+    /*
+     * キーボードから入力された値をStringで返す
+     *         引数：なし
+     *         戻り値：入力された文字列
+     */
     private static String keyIn() {
         String line = null;
         try {
-            BufferedReader key = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader key = new BufferedReader(new InputStreamReader(
+                System.in));
             line = key.readLine();
         } catch (IOException e) {
+
         }
-        return line;}
+        return line;
+    }
+
 }
