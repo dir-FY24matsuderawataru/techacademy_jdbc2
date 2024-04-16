@@ -21,7 +21,7 @@ public class DbConnectSample02 {
             // 2. DBと接続する
             con = DriverManager.getConnection(
                 "jdbc:mysql://localhost/world?useSSL=false&allowPublicKeyRetrieval=true",
-                "dir-FY24matsuderawataru",
+                "root",
                 "wpjj7691W_M"
             );
 
